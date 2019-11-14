@@ -1,9 +1,6 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
-import Item from './item';
-import SyntaxHighlighter from 'react-syntax-highlighter';
 import { Link } from 'react-router-dom'
-import AdvancedMode from './advanced-mode';
 
 import { Table, TableHead, TableRow, TableCell, TableBody } from '@material-ui/core';
 
@@ -19,13 +16,6 @@ const TextArea = styled.textarea`
     width: 550px;
     height: 280px;
     border-radius: 4px;
-`
-
-const ResultArea = styled(SyntaxHighlighter)`
-    width: 550px;
-    height: 280px;
-    border-radius: 4px;
-    font-size: 12px;
 `
 
 const Form = styled.form`
@@ -87,10 +77,7 @@ export default class SimpleMode extends Component {
 
         const json = JSON.parse(rawJson);
         const itemList = json.mods.listItems
-        const sellerName = json.mods.sellerName;
-        const sellerID = json.mods.sellerID;
 
-        let stringBuilder = "";
         let tempItemList = [];
         for (let i = 0; i < itemList.length; i++) {
             const { productUrl, sellerName, sellerId} = itemList[i];

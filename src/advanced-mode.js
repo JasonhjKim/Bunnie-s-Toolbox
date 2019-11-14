@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
-import SyntaxHighlighter from 'react-syntax-highlighter';
-import AdvancedItem from './advanced-item';
 import { Link } from 'react-router-dom'
+
+import { FormGroup, FormControlLabel, Checkbox, TableRow, Table, TableBody, TableHead, TableCell } from '@material-ui/core';
 
 const Body = styled.div`
     width: 100%;
@@ -15,16 +15,17 @@ const Body = styled.div`
 const Container = styled.div`
     width: 1024px;
     /* border: 1px solid black; */
-    height: 850px;
+    /* height: 850px; */
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
+    /* justify-content: space-between; */
     overflow-y: hidden;
+    justify-content: center;
 `
-const Form = styled.form`
-    display: flex;
-    flex-direction: column;
-`
+    const Form = styled.form`
+        display: flex;
+        flex-direction: column;
+    `
 
 const Label = styled.label`
     color: #64B9CC;
@@ -41,40 +42,42 @@ const SubmitButton = styled.input`
     font-size: 24px;
     font-weight: bold;
     border-radius: 8px;
-    align-self: center;
-    margin: 1em;
+    align-self: flex-start;
+    margin: 1em 1em 1em 0;
 `
 
 const TextArea = styled.textarea`
-    width: 400px;
-    height: 650px;
+    width: 700px;
+    height: 400px;
     border-radius: 4px;
+`   
+
+const FormWrapper = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
 `
 
-const ResultArea = styled.div`
-    width: 625px;
-    max-height: 850px;
-    display: flex;
-    flex-direction: column;
-    /* border: 1px solid black; */
-    margin-left: 1em;
-    overflow-y: scroll;
+const Image = styled.img`
+    max-width: 100px;
+    max-height: 100px;
+    object-fit: cover;
 `
 
-const Items = styled.div`
+const ResultContainer = styled.div`
     display: flex;
     flex-direction: column;
-    width: 100%;
+    margin: 0 6em;
 `
 
 export default class AdvancedMode extends Component {
     state = {
         itemList: [],
         links: "",
+        headings: [],
     }
     handleSubmit(e) {
         e.preventDefault();
-        // console.log(e.target[0].value)
         this.parseData(e.target[0].value)
     }
 
@@ -93,19 +96,35 @@ export default class AdvancedMode extends Component {
         const itemList = json.mods.listItems
         console.log(itemList);
 
-        let stringBuilder = "";
+        let temparr = [];
+        Object.keys(this.state).map(key => {
+            if (key === "itemList" || key === "links") return;
+            if (this.state[key] === true) temparr.push(key);
+        })
+
+        var tempItemList = [];
         for (let i = 0; i < itemList.length; i++) {
-            let current = itemList[i].productUrl
-            current = "https:" + current;
-            itemList[i].productUrl = current;
-            stringBuilder = stringBuilder + current + "\n";
+            let current = itemList[i]
+            let newCurrent = {};
+            for(let j = 0; j < temparr.length; j++) {
+                // console.log("here: ", temparr);
+                if (temparr[j] === "productUrl") current[temparr[j]] = "https:" + current[temparr[j]];
+                newCurrent = { ...newCurrent, [temparr[j]]: current[temparr[j]] };
+            }
+            tempItemList.push({index: i + 1, ...newCurrent});
         }
 
-        this.setState({ itemList, links: stringBuilder });
+        console.log(tempItemList);
+        Object.keys(tempItemList[0]).map(key => console.log(key));
+        temparr.unshift("index")
+        console.log(temparr);
+        this.setState({ itemList: tempItemList, headings: temparr });
+
     }
 
-    handleOnClick(e) {
-        console.log(e.target[0]);
+    handleChange(field, e) {
+        console.log(e.target.checked, field);
+        this.setState({ ...this.state, [field]: e.target.checked });
     }
 
     render() {
@@ -115,19 +134,46 @@ export default class AdvancedMode extends Component {
                 <Container>
                     <Form onSubmit={this.handleSubmit.bind(this)}>
                         <Label>View Source Lazada Here: </Label>
-                        <TextArea name="" id="" cols="30" rows="10" required></TextArea>
+                        <FormWrapper>
+                            <FormGroup>
+                                <TextArea name="" id="" cols="30" rows="10" required></TextArea>
+                            </FormGroup>
+                            <FormGroup>
+                                <FormControlLabel control={ <Checkbox type="checkbox" value="Image" onChange={ this.handleChange.bind(this, "image")}/> } label="Image"/>
+                                <FormControlLabel control={ <Checkbox type="checkbox" value="Name" onChange={ this.handleChange.bind(this, "name")}/> } label="Name"/>
+                                <FormControlLabel control={ <Checkbox type="checkbox" value="Seller ID" onChange={ this.handleChange.bind(this, "sellerId")}/> } label="Seller ID"/>
+                                <FormControlLabel control={ <Checkbox type="checkbox" value="Seller Name" onChange={ this.handleChange.bind(this, "sellerName")}/> } label="Seller Name"/>
+                                <FormControlLabel control={ <Checkbox type="checkbox" value="Brand ID" onChange={ this.handleChange.bind(this, "brandId")}/> } label="Brand ID"/>
+                                <FormControlLabel control={ <Checkbox type="checkbox" value="Brand Name" onChange={ this.handleChange.bind(this, "brandName")}/> } label="Brand Name"/>
+                                <FormControlLabel control={ <Checkbox type="checkbox" value="Product Url" onChange={ this.handleChange.bind(this, "productUrl")}/> } label="Product Url"/>
+                                <FormControlLabel control={ <Checkbox type="checkbox" value="Price Show" onChange={ this.handleChange.bind(this, "priceShow")}/> } label="Price Show"/>
+                                <FormControlLabel control={ <Checkbox type="checkbox" value="Location" onChange={ this.handleChange.bind(this, "location")}/> } label="Location"/>
+                            </FormGroup>
+                        </FormWrapper>
                         <SubmitButton type="submit" value="Hit it" />
                     </Form>
-                    { this.state.itemList.length > 0 &&
-                        <ResultArea>
-                            <Label>Advanced Result: </Label>
-                            { this.state.itemList.map((item) => 
-                                <AdvancedItem productUrl={item.productUrl} name={item.name} image={item.image} priceShow={item.priceShow}/>
-                            )}
-                        </ResultArea>
-
-                    }
                 </Container>
+                <ResultContainer>
+                    <Table>
+                        <TableHead>
+                            <TableRow>
+                                {/* { this.state.itemList.length > 0 ? Object.keys(this.state.itemList[0]).map(key => <TableCell>{key}</TableCell>) : null} */}
+                                { this.state.headings.length > 0 ? this.state.headings.map(heading => <TableCell>{heading}</TableCell>) : null}
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            { this.state.itemList.length > 0 ? this.state.itemList.map(item => 
+                                <TableRow>
+                                    { Object.keys(item).map(key => 
+                                        <React.Fragment>
+                                            { key === "image" ? <TableCell><Image src={item[key]}/></TableCell> : <TableCell>{item[key]}</TableCell>}
+                                        </React.Fragment>
+                                    )}
+                                </TableRow>
+                            ) : null}
+                        </TableBody>
+                    </Table>
+                </ResultContainer>
             </Body>
         )
     }
