@@ -5,6 +5,8 @@ import SyntaxHighlighter from 'react-syntax-highlighter';
 import { Link } from 'react-router-dom'
 import AdvancedMode from './advanced-mode';
 
+import { Table, TableHead, TableRow, TableCell, TableBody } from '@material-ui/core';
+
 
 const Body = styled.div`
     width: 100%;
@@ -50,10 +52,15 @@ const SubmitButton = styled.input`
     margin: 1em;
 `
 
-
 const ResultContainer = styled.div`
     display: flex;
     flex-direction: column;
+    margin: 0 6em;
+`
+
+const StyledTable = styled(Table)`
+    width: 550px;
+    height: 280px;
 `
 
 
@@ -79,19 +86,23 @@ export default class SimpleMode extends Component {
         // console.log(rawJson);
 
         const json = JSON.parse(rawJson);
-        console.log(json);
         const itemList = json.mods.listItems
-        console.log(itemList);
+        const sellerName = json.mods.sellerName;
+        const sellerID = json.mods.sellerID;
 
         let stringBuilder = "";
+        let tempItemList = [];
         for (let i = 0; i < itemList.length; i++) {
-            let current = itemList[i].productUrl
-            current = "https:" + current;
-            itemList[i].productUrl = current;
-            stringBuilder = stringBuilder + current + "\n";
+            const { productUrl, sellerName, sellerId} = itemList[i];
+            let tempProductURL = "https:" + productUrl;
+            console.log(tempProductURL)
+            // itemList[i].productUrl = tempProductURLs;
+            // stringBuilder = stringBuilder + tempProductURLs;
+
+            tempItemList.push({ index: i + 1, sellerId, sellerName, productUrl: tempProductURL });
         }
 
-        this.setState({ itemList, links: stringBuilder });
+        this.setState({ itemList: tempItemList });
     }
 
     render() {
@@ -109,9 +120,31 @@ export default class SimpleMode extends Component {
                 { this.state.itemList.length > 0 &&
                 <ResultContainer>
                     <Label>{`Found Links (${this.state.itemList.length}):`}</Label>
-                    <ResultArea showLineNumbers={true} >
+                    <StyledTable>
+                        <TableHead>
+                            <TableRow>
+                                <TableCell>#</TableCell>
+                                <TableCell> Seller ID</TableCell>
+                                <TableCell> Seller Name</TableCell>
+                                <TableCell> Product URL</TableCell>
+                            </TableRow>
+                        </TableHead>
+
+                        <TableBody>
+                            {
+                                 this.state.itemList.map((item) => 
+                                 <TableRow>
+                                     <TableCell>{item.index}</TableCell>
+                                     <TableCell> {item.sellerId}</TableCell>
+                                     <TableCell> {item.sellerName}</TableCell>
+                                     <TableCell> {item.productUrl}</TableCell>
+                                 </TableRow>
+                            )}
+                        </TableBody>
+                    </StyledTable>
+                    {/* <ResultArea showLineNumbers={true} >
                         {this.state.links.length > 0 ? this.state.links : null}
-                    </ResultArea>
+                    </ResultArea> */}
                 </ResultContainer>
             }
 
@@ -167,7 +200,7 @@ const NavBar = () => {
     return(
         <NavBarContainer>
             <LogoHeading>Bunnie's Tool Box</LogoHeading>
-            <Advanced><StyledLink to="/advanced">Advanced Mode</StyledLink></Advanced>
+            <Advanced><StyledLink to="/advanced">Advanced Mode</StyledLink  ></Advanced>
         </NavBarContainer>
     )
 }
