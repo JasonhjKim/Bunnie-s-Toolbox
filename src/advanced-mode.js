@@ -68,6 +68,13 @@ const ResultContainer = styled.div`
     display: flex;
     flex-direction: column;
     margin: 0 6em;
+    width: 100%;
+    overflow-x: auto;
+`
+
+const StyledTable = styled(Table)`
+    max-width: 100%;
+    /* width: 900px; */
 `
 
 export default class AdvancedMode extends Component {
@@ -154,7 +161,7 @@ export default class AdvancedMode extends Component {
                     </Form>
                 </Container>
                 <ResultContainer>
-                    <Table>
+                    <StyledTable width={1}>
                         <TableHead>
                             <TableRow>
                                 {/* { this.state.itemList.length > 0 ? Object.keys(this.state.itemList[0]).map(key => <TableCell>{key}</TableCell>) : null} */}
@@ -172,7 +179,7 @@ export default class AdvancedMode extends Component {
                                 </TableRow>
                             ) : null}
                         </TableBody>
-                    </Table>
+                    </StyledTable>
                 </ResultContainer>
             </Body>
         )
